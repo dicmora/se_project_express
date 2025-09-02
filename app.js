@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const mainRouters = require("./routes/index");
 
-const { PORT = 3001, BASE_PATH } = process.env;
+const { PORT = 3001, BASE_PATH = "/" } = process.env;
 const app = express();
 
 app.use((req, res, next) => {
@@ -13,15 +13,17 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
-app.use("/", mainRouters);
+app.use(BASE_PATH, mainRouters);
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db")
   .then(() => {
-    console.log("Connected to MongoDB");
+    console.warn("Connected to MongoDB");
   })
-  .catch(console.error);
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
 
 app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
+  console.warn(`App listening on port ${PORT}`);
 });

@@ -1,4 +1,4 @@
-console.log("ESLint configuration loaded");
+console.warn("ESLint configuration loaded");
 
 module.exports = {
   env: {
