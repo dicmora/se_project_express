@@ -1,4 +1,8 @@
-const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require("./errors");
+const {
+  BAD_REQUEST,
+  NOT_FOUND,
+  INTERNAL_SERVER_ERROR,
+} = require("./httpErrors");
 
 const handleError = (err, res, resourceId, resourceName = "Resource") => {
   if (err.name === "CastError") {

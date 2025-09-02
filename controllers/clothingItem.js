@@ -1,6 +1,6 @@
-const ClothingItem = require("../models/item");
+const ClothingItem = require("../models/clothingItem");
 const handleError = require("../utils/handleErrors");
-const { NOT_FOUND } = require("../utils/errors");
+const { NOT_FOUND } = require("../utils/httpErrors");
 
 const getItems = (req, res) => {
   ClothingItem.find({})
@@ -32,6 +32,18 @@ const createItem = (req, res) => {
   })
     .then((item) => res.status(201).send(item))
     .catch((err) => handleError(err, res));
+};
+
+const deleteItem = (req, res) => {
+  const { itemId } = req.params;
+  ClothingItem.findByIdAndDelete(itemId)
+    .orFail(() => {
+      const error = new Error("Item not found");
+      error.statusCode = NOT_FOUND;
+      throw error;
+    })
+    .then((item) => res.status(200).send(item))
+    .catch((err) => handleError(err, res, itemId, "Item"));
 };
 
 const likeItem = (req, res) => {
@@ -72,6 +84,7 @@ module.exports = {
   getItems,
   getItemById,
   createItem,
+  deleteItem,
   likeItem,
   unlikeItem,
 };

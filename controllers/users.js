@@ -1,6 +1,6 @@
 const User = require("../models/user");
 const handleError = require("../utils/handleErrors");
-const { NOT_FOUND } = require("../utils/errors");
+const { NOT_FOUND } = require("../utils/httpErrors");
 
 const getUsers = (req, res) => {
   User.find({})
