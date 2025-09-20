@@ -1,9 +1,9 @@
+const cor = require("cors");
 const express = require("express");
 const mongoose = require("mongoose");
 const mainRouters = require("./routes/index");
 const auth = require("./middlewares/auth");
 const { login, createUser } = require("./controllers/users");
-const cor = require("cors");
 
 const { PORT = 3001, BASE_PATH = "/" } = process.env;
 const app = express();

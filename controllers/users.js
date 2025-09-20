@@ -2,7 +2,7 @@ const bcript = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const handleError = require("../utils/handleErrors");
-const { NOT_FOUND } = require("../utils/httpErrors");
+const { NOT_FOUND, BAD_REQUEST, CONFLICT } = require("../utils/httpErrors");
 const { JWT_SECRET } = require("../utils/config");
 
 const getUsers = (req, res) => {
@@ -34,10 +34,13 @@ const createUser = (req, res) => {
       })
       .catch((err) => {
         if (err.code === 11000) {
-          err.statusCode = 409;
-          err.message = "User with this email already exists";
+          const CONFLICTERROR = new Error(
+            "User with this email already exists"
+          );
+          CONFLICTERROR.statusCode = CONFLICT;
+          return handleError(CONFLICTERROR, res);
         }
-        handleError(err, res);
+        return handleError(err, res);
       });
   });
 };
@@ -45,12 +48,18 @@ const createUser = (req, res) => {
 const login = (req, res) => {
   const { email, password } = req.body;
 
-  User.findUserByCredentials(email, password)
+  if (!email || !password) {
+    return res
+      .status(BAD_REQUEST)
+      .send({ message: "Email and password are required" });
+  }
+
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-      res.send({ token });
+      return res.send({ token });
     })
     .catch((err) => handleError(err, res));
 };
