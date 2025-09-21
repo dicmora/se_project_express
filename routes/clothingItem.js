@@ -1,4 +1,4 @@
-const router = require("express").Router();
+const express = require("express");
 const {
   getItems,
   getItemById,
@@ -8,11 +8,13 @@ const {
   unlikeItem,
 } = require("../controllers/clothingItem");
 
-router.get("/", getItems);
-router.get("/:itemId", getItemById);
-router.post("/", createItem);
-router.delete("/:itemId", deleteItem);
-router.put("/:itemId/likes", likeItem);
-router.delete("/:itemId/likes", unlikeItem);
+const publicRouter = express.Router();
+publicRouter.get("/", getItems);
 
-module.exports = router;
+const protectedRouter = express.Router();
+protectedRouter.get("/:itemId", getItemById);
+protectedRouter.post("/", createItem);
+protectedRouter.delete("/:itemId", deleteItem);
+protectedRouter.put("/:itemId/likes", likeItem);
+protectedRouter.delete("/:itemId/likes", unlikeItem);
+module.exports = { publicRouter, protectedRouter };

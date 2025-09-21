@@ -2,11 +2,21 @@ const {
   BAD_REQUEST,
   NOT_FOUND,
   INTERNAL_SERVER_ERROR,
+  UNAUTHORIZED,
+  CONFLICTERROR,
 } = require("./httpErrors");
 
 const handleError = (err, res, resourceId, resourceName = "Resource") => {
   if (err.name === "CastError") {
     return res.status(BAD_REQUEST).send({ message: "Invalid ID format" });
+  }
+
+  if (err.message === "Invalid email or password") {
+    return res.status(UNAUTHORIZED).send({ message: err.message });
+  }
+
+  if (err.statusCode === CONFLICTERROR) {
+    return res.status(CONFLICTERROR).send({ message: err.message });
   }
 
   if (err.name === "ValidationError") {

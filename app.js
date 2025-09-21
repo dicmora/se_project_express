@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const mainRouters = require("./routes/index");
 const auth = require("./middlewares/auth");
 const { login, createUser } = require("./controllers/users");
+const { publicRouter, protectedRouter } = require("./routes/clothingItem");
 
 const { PORT = 3001, BASE_PATH = "/" } = process.env;
 const app = express();
@@ -14,7 +15,10 @@ app.use(express.json());
 app.post("/signin", login);
 app.post("/signup", createUser);
 
+app.use("/items", publicRouter);
+
 app.use(auth);
+app.use("/items", protectedRouter);
 app.use(BASE_PATH, mainRouters);
 
 mongoose

@@ -2,7 +2,11 @@ const bcript = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const handleError = require("../utils/handleErrors");
-const { NOT_FOUND, BAD_REQUEST, CONFLICT } = require("../utils/httpErrors");
+const {
+  NOT_FOUND,
+  BAD_REQUEST,
+  CONFLICTERROR,
+} = require("../utils/httpErrors");
 const { JWT_SECRET } = require("../utils/config");
 
 const getUsers = (req, res) => {
@@ -34,11 +38,9 @@ const createUser = (req, res) => {
       })
       .catch((err) => {
         if (err.code === 11000) {
-          const CONFLICTERROR = new Error(
-            "User with this email already exists"
-          );
-          CONFLICTERROR.statusCode = CONFLICT;
-          return handleError(CONFLICTERROR, res);
+          const conflictError = new Error("Email already exists");
+          conflictError.statusCode = CONFLICTERROR;
+          return handleError(conflictError, res);
         }
         return handleError(err, res);
       });
