@@ -1,35 +1,34 @@
-const cor = require("cors");
 const express = require("express");
+const cors = require("cors");
 const mongoose = require("mongoose");
-const mainRouters = require("./routes/index");
-const auth = require("./middlewares/auth");
 const { login, createUser } = require("./controllers/users");
-const { publicRouter, protectedRouter } = require("./routes/clothingItem");
+const clothingItemRouter = require("./routes/clothingItem");
 
-const { PORT = 3001, BASE_PATH = "/" } = process.env;
+const authMiddleware = require("./middlewares/auth");
+const userRouter = require("./routes/users");
+
+const { PORT = 3001 } = process.env;
 const app = express();
 
-app.use(cor());
+app.use(cors());
 app.use(express.json());
 
+// Auth routes
 app.post("/signin", login);
 app.post("/signup", createUser);
 
-app.use("/items", publicRouter);
+// All /users routes with auth middleware
+app.use("/users", authMiddleware, userRouter);
 
-app.use(auth);
-app.use("/items", protectedRouter);
-app.use(BASE_PATH, mainRouters);
+// All /items routes
+app.use("/items", clothingItemRouter);
+
+// 404 fallback
+app.use((req, res) => res.status(404).send({ message: "Not Found" }));
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db")
-  .then(() => {
-    console.warn("Connected to MongoDB");
-  })
-  .catch((err) => {
-    console.error("MongoDB connection error:", err);
-  });
+  .then(() => console.warn(" Connected to MongoDB"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
-app.listen(PORT, () => {
-  console.warn(`App listening on port ${PORT}`);
-});
+app.listen(PORT, () => console.warn(`Server running on port ${PORT}`));

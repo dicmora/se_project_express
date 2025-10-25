@@ -36,21 +36,23 @@ const createItem = (req, res) => {
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
-  ClothingItem.findByIdAndDelete(itemId)
+
+  ClothingItem.findById(itemId)
     .orFail(() => {
       const error = new Error("Item not found");
-      error.statusCode = NOT_FOUND;
+      error.statusCode = 404;
       throw error;
     })
     .then((item) => {
       if (item.owner.toString() !== req.user._id) {
-        return res
-          .status(403)
-          .send({ message: "You can delete only your own items" });
+        return res.status(403).send({ message: "Forbidden: Not the owner" });
       }
-      return res.status(200).send({ message: "Item deleted successfully" });
+      return ClothingItem.deleteOne({ _id: itemId });
     })
-    .catch((err) => handleError(err, res, itemId, "Item"));
+    .then(() => res.status(200).send({ message: "Item deleted successfully" }))
+    .catch((err) => {
+      handleError(err, res, itemId, "Item");
+    });
 };
 
 const likeItem = (req, res) => {

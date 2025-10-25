@@ -7,14 +7,20 @@ const {
   likeItem,
   unlikeItem,
 } = require("../controllers/clothingItem");
+const auth = require("../middlewares/auth");
 
-const publicRouter = express.Router();
-publicRouter.get("/", getItems);
+const router = express.Router();
 
-const protectedRouter = express.Router();
-protectedRouter.get("/:itemId", getItemById);
-protectedRouter.post("/", createItem);
-protectedRouter.delete("/:itemId", deleteItem);
-protectedRouter.put("/:itemId/likes", likeItem);
-protectedRouter.delete("/:itemId/likes", unlikeItem);
-module.exports = { publicRouter, protectedRouter };
+// Public route
+router.get("/", getItems);
+
+// Everything below requires auth
+router.use(auth);
+
+router.get("/:itemId", getItemById);
+router.post("/", createItem);
+router.delete("/:itemId", deleteItem);
+router.put("/:itemId/likes", likeItem);
+router.delete("/:itemId/likes", unlikeItem);
+
+module.exports = router;

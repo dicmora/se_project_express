@@ -1,7 +1,9 @@
-const bcript = require("bcryptjs");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const handleError = require("../utils/handleErrors");
+const getUser = require("./users").getCurrentUser;
+
 const {
   NOT_FOUND,
   BAD_REQUEST,
@@ -29,7 +31,7 @@ const getCurrentUser = (req, res) => {
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
-  bcript.hash(password, 10).then((hash) => {
+  bcrypt.hash(password, 10).then((hash) => {
     User.create({ name, avatar, email, password: hash })
       .then((user) => {
         const userWithoutPassword = user.toObject();
