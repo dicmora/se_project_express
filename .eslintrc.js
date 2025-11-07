@@ -23,7 +23,6 @@ module.exports = {
     sourceType: "module",
   },
   rules: {
-    "no-console": ["error", { allow: ["warn", "error"] }],
-    "no-underscore-dangle": ["error", { allow: ["_id"] }],
+    "no-unused-vars": ["error", { argsIgnorePattern: "next" }],
   },
 };
