@@ -1,12 +1,19 @@
 module.exports = (err, req, res, next) => {
-  console.error(err.stack);
+  if (process.env.NODE_ENV !== "production") {
+    console.error(err);
+  }
 
-  const status = err.status || 500;
-  const message = err.message || "Something went wrong";
+  const statusCode = err.status || err.status || 500;
+  const isServerError = statusCode >= 500;
 
-  res.status(status).json({
+  const message = isServerError
+    ? "Something went wrong"
+    : err.message || "Something went wrong";
+
+  res.status(statusCode).json({
     success: false,
+    error: err.name || "Error",
     message,
-    ...(process.env.NODE_ENV !== "production" ? { stack: err.stack } : {}),
+    ...err(process.env.NODE_ENV === "production" && { stack: err.stack }),
   });
 };

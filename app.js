@@ -13,12 +13,15 @@ const app = express();
 const { errors } = require("celebrate");
 const errorHandler = require("./middlewares/error-handler");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
+const {
+  validateLogin,
+  validateUserCreation,
+} = require("./middlewares/validation");
 
 app.use(cors());
 app.use(express.json());
 
 app.use(requestLogger);
-app.use(errorLogger);
 
 app.get("/crash-test", () => {
   setTimeout(() => {
@@ -27,20 +30,17 @@ app.get("/crash-test", () => {
 });
 
 // Auth routes
-app.post("/signin", login);
-app.post("/signup", createUser);
+app.post("/signin", validateLogin, login);
+app.post("/signup", validateUserCreation, createUser);
 
 // All /users routes with auth middleware
 app.use("/users", authMiddleware, userRouter);
-
 // All /items routes
 app.use("/items", clothingItemRouter);
 
-// 404 fallback
-app.use((req, res) => res.status(404).send({ message: "Not Found" }));
+app.use(errorLogger);
 
 //app.use(requestLogger);
-
 app.use(errors());
 
 app.use(errorHandler);

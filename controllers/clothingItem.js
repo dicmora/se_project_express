@@ -1,27 +1,28 @@
 const ClothingItem = require("../models/clothingItem");
-const handleError = require("../utils/handleErrors");
-const { NOT_FOUND } = require("../utils/httpErrors");
+const { BadRequestError, NotFoundError, ForbiddenError } = require("../errors");
 
-const getItems = (req, res) => {
+const getItems = (req, res, next) => {
   ClothingItem.find({})
     .then((items) => res.send(items))
-    .catch((err) => handleError(err, res));
+    .catch(next);
 };
 
-const getItemById = (req, res) => {
+const getItemById = (req, res, next) => {
   const { itemId } = req.params;
 
   ClothingItem.findById(itemId)
-    .orFail(() => {
-      const error = new Error("Item not found");
-      error.statusCode = NOT_FOUND;
-      throw error;
-    })
+    .orFail(() => new NotFoundError("Item not found"))
     .then((item) => res.status(200).send(item))
-    .catch((err) => handleError(err, res, itemId, "Item"));
+    .catch((err) => {
+      if (err.name === "CastError") {
+        next(new BadRequestError("Invalid ID format"));
+      } else {
+        next(err);
+      }
+    });
 };
 
-const createItem = (req, res) => {
+const createItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
 
   ClothingItem.create({
@@ -31,31 +32,37 @@ const createItem = (req, res) => {
     owner: req.user._id,
   })
     .then((item) => res.status(201).send(item))
-    .catch((err) => handleError(err, res));
-};
-
-const deleteItem = (req, res) => {
-  const { itemId } = req.params;
-
-  ClothingItem.findById(itemId)
-    .orFail(() => {
-      const error = new Error("Item not found");
-      error.statusCode = 404;
-      throw error;
-    })
-    .then((item) => {
-      if (item.owner.toString() !== req.user._id) {
-        return res.status(403).send({ message: "Forbidden: Not the owner" });
-      }
-      return ClothingItem.deleteOne({ _id: itemId });
-    })
-    .then(() => res.status(200).send({ message: "Item deleted successfully" }))
     .catch((err) => {
-      handleError(err, res, itemId, "Item");
+      if (err.name === "ValidationError") {
+        next(new BadRequestError("Invalid data provided"));
+      } else {
+        next(err);
+      }
     });
 };
 
-const likeItem = (req, res) => {
+const deleteItem = (req, res, next) => {
+  const { itemId } = req.params;
+
+  ClothingItem.findById(itemId)
+    .orFail(() => new NotFoundError("Item not found"))
+    .then((item) => {
+      if (item.owner.toString() !== req.user._id) {
+        throw new ForbiddenError("You are not allowed to delete this item");
+      }
+      return ClothingItem.findByIdAndRemove({ _id: itemId });
+    })
+    .then(() => res.status(200).send({ message: "Item deleted successfully." }))
+    .catch((err) => {
+      if (err.name === "CastError") {
+        next(new BadRequestError("Invalid ID format"));
+      } else {
+        next(err);
+      }
+    });
+};
+
+const likeItem = (req, res, next) => {
   const { itemId } = req.params;
 
   ClothingItem.findByIdAndUpdate(
@@ -63,16 +70,18 @@ const likeItem = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true }
   )
-    .orFail(() => {
-      const error = new Error("Item not found");
-      error.statusCode = NOT_FOUND;
-      throw error;
-    })
+    .orFail(() => new NotFoundError("Item not found"))
     .then((item) => res.status(200).send(item))
-    .catch((err) => handleError(err, res, itemId, "Item"));
+    .catch((err) => {
+      if (err.name === "CastError") {
+        next(new BadRequestError("Invalid ID format"));
+      } else {
+        next(err);
+      }
+    });
 };
 
-const unlikeItem = (req, res) => {
+const unlikeItem = (req, res, next) => {
   const { itemId } = req.params;
 
   ClothingItem.findByIdAndUpdate(
@@ -81,12 +90,16 @@ const unlikeItem = (req, res) => {
     { new: true }
   )
     .orFail(() => {
-      const error = new Error("Item not found");
-      error.statusCode = NOT_FOUND;
-      throw error;
+      new NotFoundError("Item not found");
     })
     .then((item) => res.status(200).send(item))
-    .catch((err) => handleError(err, res, itemId, "Item"));
+    .catch((err) => {
+      if (err.name === "CastError") {
+        next(new BadRequestError("Invalid ID format"));
+      } else {
+        next(err);
+      }
+    });
 };
 
 module.exports = {
