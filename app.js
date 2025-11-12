@@ -31,6 +31,7 @@ app.get("/crash-test", () => {
 
 // Auth routes
 app.post("/signin", validateLogin, login);
+
 app.post("/signup", validateUserCreation, createUser);
 
 // All /users routes with auth middleware
