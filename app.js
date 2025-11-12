@@ -20,6 +20,12 @@ app.use(express.json());
 app.use(requestLogger);
 app.use(errorLogger);
 
+app.get("/crash-test", () => {
+  setTimeout(() => {
+    throw new Error("Server will crash now");
+  }, 0);
+});
+
 // Auth routes
 app.post("/signin", login);
 app.post("/signup", createUser);
@@ -33,7 +39,7 @@ app.use("/items", clothingItemRouter);
 // 404 fallback
 app.use((req, res) => res.status(404).send({ message: "Not Found" }));
 
-app.use(requestLogger);
+//app.use(requestLogger);
 
 app.use(errors());
 

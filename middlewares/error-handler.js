@@ -4,9 +4,9 @@ module.exports = (err, req, res, next) => {
   const status = err.status || 500;
   const message = err.message || "Something went wrong";
 
-  res.status(status).jsson({
+  res.status(status).json({
     success: false,
     message,
-    ...(err(process.env.NODE_ENV !== "production") && { stack: err.stack }),
+    ...(process.env.NODE_ENV !== "production" ? { stack: err.stack } : {}),
   });
 };
