@@ -40,7 +40,6 @@ app.use("/items", clothingItemRouter);
 
 app.use(errorLogger);
 
-//app.use(requestLogger);
 app.use(errors());
 
 app.use(errorHandler);
