@@ -8,10 +8,7 @@ const {
   unlikeItem,
 } = require("../controllers/clothingItem");
 const auth = require("../middlewares/auth");
-const {
-  validateId,
-  validateClothingItem,
-} = require("../middlewares/validation");
+const { validateId } = require("../middlewares/validation");
 
 const router = express.Router();
 
@@ -22,7 +19,7 @@ router.get("/", getItems);
 router.use(auth);
 
 router.get("/:itemId", validateId, getItemById);
-router.post("/", validateClothingItem, createItem);
+router.post("/", createItem);
 router.delete("/:itemId", validateId, deleteItem);
 router.put("/:itemId/likes", validateId, likeItem);
 router.delete("/:itemId/likes", validateId, unlikeItem);

@@ -44,15 +44,14 @@ const createItem = (req, res, next) => {
 const deleteItem = (req, res, next) => {
   const { itemId } = req.params;
 
+  if (!req.user || !req.user._id) {
+    return next(new ForbiddenError("You must be logged in to delete an item"));
+  }
+
   ClothingItem.findById(itemId)
     .orFail(() => new NotFoundError("Item not found"))
-    .then((item) => {
-      if (item.owner.toString() !== req.user._id) {
-        throw new ForbiddenError("You are not allowed to delete this item");
-      }
-      return ClothingItem.findByIdAndRemove({ _id: itemId });
-    })
-    .then(() => res.status(200).send({ message: "Item deleted successfully." }))
+    .then((item) => ClothingItem.findByIdAndDelete(itemId))
+    .then((deletedItem) => res.status(200).send(deletedItem))
     .catch((err) => {
       if (err.name === "CastError") {
         next(new BadRequestError("Invalid ID format"));
