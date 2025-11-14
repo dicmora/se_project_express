@@ -9,7 +9,7 @@ const validateURL = (value, helpers) => {
   return helpers.error("string.uri");
 };
 
-//Clothing item creation
+// Clothing item creation
 const validateClothingItem = celebrate({
   [Segments.BODY]: Joi.object().keys({
     name: Joi.string().required().min(2).max(30).messages({
@@ -29,7 +29,7 @@ const validateClothingItem = celebrate({
   }),
 });
 
-//User creation
+// User creation
 const validateUserCreation = celebrate({
   [Segments.BODY]: Joi.object().keys({
     name: Joi.string().required().min(2).max(30).messages({
@@ -53,7 +53,7 @@ const validateUserCreation = celebrate({
   }),
 });
 
-//Login
+// Login
 const validateLogin = celebrate({
   [Segments.BODY]: Joi.object().keys({
     email: Joi.string().required().email().messages({
@@ -84,13 +84,13 @@ const validateUserUpdate = celebrate({
   }),
 });
 
-//ID validation for params
+// ID validation for params
 const validateId = celebrate({
   params: Joi.object().keys({
     itemId: Joi.string().required().hex().length(24).messages({
-      length: '"${paramName}" must be 24 characters long',
-      "string.hex:": '"${paramName}" must be a valid hex string',
-      "any.required": '"${paramName}" is required',
+      length: '"paramName" must be 24 characters long',
+      "string.hex:": '"paramName" must be a valid hex string',
+      "any.required": '"paramName" is required',
     }),
   }),
 });

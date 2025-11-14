@@ -47,11 +47,12 @@ const deleteItem = (req, res, next) => {
   if (!req.user || !req.user._id) {
     return next(new ForbiddenError("You must be logged in to delete an item"));
   }
-
-  ClothingItem.findById(itemId)
+  ClothingItem.findById(itemId);
+  return ClothingItem.findById(itemId)
     .orFail(() => new NotFoundError("Item not found"))
-    .then((item) => ClothingItem.findByIdAndDelete(itemId))
+    .then(() => ClothingItem.findByIdAndDelete(itemId))
     .then((deletedItem) => res.status(200).send(deletedItem))
+
     .catch((err) => {
       if (err.name === "CastError") {
         next(new BadRequestError("Invalid ID format"));
@@ -88,9 +89,7 @@ const unlikeItem = (req, res, next) => {
     { $pull: { likes: req.user._id } },
     { new: true }
   )
-    .orFail(() => {
-      new NotFoundError("Item not found");
-    })
+    .orFail(() => new NotFoundError("Item not found"))
     .then((item) => res.status(200).send(item))
     .catch((err) => {
       if (err.name === "CastError") {

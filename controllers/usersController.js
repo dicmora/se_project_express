@@ -1,13 +1,12 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-//const getUser = require("./usersController").getCurrentUser;
+
 const {
   BadRequestError,
   NotFoundError,
   ConflictError,
   UnauthorizedError,
-  ForbiddenError,
 } = require("../errors");
 
 const { JWT_SECRET } = require("../utils/config");
@@ -53,17 +52,14 @@ const login = (req, res, next) => {
   if (!email || !password) {
     return next(new BadRequestError("Email and password are required"));
   }
-
-  User.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
       res.send({ token });
     })
-    .catch((err) => {
-      next(new UnauthorizedError("Invalid email or password"));
-    });
+    .catch(() => next(new UnauthorizedError("Invalid email or password")));
 };
 
 const updateCurrentUser = (req, res, next) => {

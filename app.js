@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const mongoose = require("mongoose");
+const { errors } = require("celebrate");
 const { login, createUser } = require("./controllers/usersController");
 const clothingItemRouter = require("./routes/clothingItem");
 
@@ -10,7 +11,6 @@ const userRouter = require("./routes/users");
 
 const { PORT = 3001 } = process.env;
 const app = express();
-const { errors } = require("celebrate");
 const errorHandler = require("./middlewares/error-handler");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 const {
@@ -47,7 +47,9 @@ app.use(errorHandler);
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db")
-  .then(() => console.warn(" Connected to MongoDB"))
+  // eslint-disable-next-line no-console
+  .then(() => console.warn("Connected to MongoDB"))
+  // eslint-disable-next-line no-console
   .catch((err) => console.error("MongoDB connection error:", err));
 
-app.listen(PORT, () => console.warn(`Server running on port ${PORT}`));
+app.listen(PORT, () => {});
